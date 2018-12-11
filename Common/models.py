@@ -1,7 +1,6 @@
 from django.db import models
 
 
-
 class Movie(models.Model):
     m_name = models.CharField(max_length=64)
     m_duration = models.IntegerField(default=90)
