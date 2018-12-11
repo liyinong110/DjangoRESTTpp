@@ -1,6 +1,5 @@
-from django.contrib.auth.hashers import make_password
+from django.contrib.auth.hashers import make_password, check_password
 from django.db import models
-from werkzeug.security import check_password_hash
 
 
 class AdminUser(models.Model):
@@ -14,5 +13,5 @@ class AdminUser(models.Model):
     def set_password(self, password):
         self.a_password = make_password(password)
 
-    def check_password(self, password):
-        return check_password_hash(self.a_password, password)
+    def check_admin_password(self, password):
+        return check_password(password, self.a_password)
