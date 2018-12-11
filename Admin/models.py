@@ -15,3 +15,8 @@ class AdminUser(models.Model):
 
     def check_admin_password(self, password):
         return check_password(password, self.a_password)
+
+
+class Permission(models.Model):
+    p_name = models.CharField(max_length=32, unique=True)
+    p_users = models.ManyToManyField(AdminUser)

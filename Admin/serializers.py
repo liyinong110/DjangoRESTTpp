@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from Admin.models import AdminUser
+from Admin.models import AdminUser, Permission
 
 
 class AdminUserSerializer(serializers.ModelSerializer):
@@ -16,7 +16,16 @@ class AdminUserSerializer(serializers.ModelSerializer):
         adminUser.a_username = a_username
         a_password = validated_data.get("a_password")
         adminUser.set_password(a_password)
+        is_super = validated_data.get("is_super")
+        adminUser.is_super = is_super
 
         adminUser.save()
 
         return adminUser
+
+
+class PermissionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Permission
+        fields = ("p_name", )

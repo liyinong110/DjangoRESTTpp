@@ -2,12 +2,14 @@ import uuid
 
 from django.core.cache import cache
 from rest_framework.exceptions import APIException
-from rest_framework.generics import CreateAPIView
+from rest_framework.generics import CreateAPIView, ListCreateAPIView
 from rest_framework.response import Response
 
-from Admin.models import AdminUser
-from Admin.serializers import AdminUserSerializer
-from DjangoRESTTpp.settings import ADMIN_USER_TIMEOUT
+from Admin.authentication import AdminUserAuthentication
+from Admin.models import AdminUser, Permission
+from Admin.permissions import CreatePermission
+from Admin.serializers import AdminUserSerializer, PermissionSerializer
+from DjangoRESTTpp.settings import ADMIN_USER_TIMEOUT, ADMIN_USERS
 
 
 class AdminUsersAPIView(CreateAPIView):
@@ -52,3 +54,21 @@ class AdminUsersAPIView(CreateAPIView):
 
         else:
             raise APIException(detail="请提供正确的动作")
+
+    def perform_create(self, serializer):
+        a_username = self.request.data.get("a_username")
+
+        serializer.save(is_super = a_username in ADMIN_USERS)
+
+        # if a_username in ADMIN_USERS:
+        #     serializer.save(is_super=True)
+        # else:
+        #     serializer.save()
+
+
+class PermissionsAPIView(ListCreateAPIView):
+
+    queryset = Permission.objects.all()
+    serializer_class = PermissionSerializer
+    authentication_classes = (AdminUserAuthentication, )
+    permission_classes = (CreatePermission, )

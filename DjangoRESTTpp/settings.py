@@ -129,6 +129,8 @@ STATIC_URL = '/static/'
 
 ADMIN_USER_TIMEOUT = 60 * 60 * 24 * 7
 
+ADMIN_USERS = ("Rock", "Admin", "Root")
+
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
