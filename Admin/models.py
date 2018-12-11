@@ -16,6 +16,15 @@ class AdminUser(models.Model):
     def check_admin_password(self, password):
         return check_password(password, self.a_password)
 
+    def has_permission(self, permission_name):
+        permissions = self.permission_set.all()
+
+        for permission in permissions:
+            if permission_name == permission.p_name:
+                return True
+
+        return False
+
 
 class Permission(models.Model):
     p_name = models.CharField(max_length=32, unique=True)

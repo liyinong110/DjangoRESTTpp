@@ -7,7 +7,7 @@ from rest_framework.response import Response
 
 from Admin.authentication import AdminUserAuthentication
 from Admin.models import AdminUser, Permission
-from Admin.permissions import CreatePermission
+from Admin.permissions import SuperAdminUserPermission
 from Admin.serializers import AdminUserSerializer, PermissionSerializer
 from DjangoRESTTpp.settings import ADMIN_USER_TIMEOUT, ADMIN_USERS
 
@@ -71,4 +71,29 @@ class PermissionsAPIView(ListCreateAPIView):
     queryset = Permission.objects.all()
     serializer_class = PermissionSerializer
     authentication_classes = (AdminUserAuthentication, )
-    permission_classes = (CreatePermission, )
+    permission_classes = (SuperAdminUserPermission,)
+
+    def patch(self, request, *args, **kwargs):
+        user_id = request.data.get("user_id")
+        permission_id = request.data.get("permission_id")
+
+        try:
+            permission = Permission.objects.get(pk=permission_id)
+        except Exception as e:
+            print(e)
+            raise APIException(detail="权限不存在")
+
+        try:
+            user = AdminUser.objects.get(pk=user_id)
+        except Exception as e:
+            print(e)
+            raise APIException(detail="用户不存在")
+
+        user.permission_set.add(permission)
+
+        data = {
+            "msg": "add success",
+            "status": 201
+        }
+
+        return Response(data)

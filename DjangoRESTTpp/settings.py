@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'Admin',
     'Cinema',
     'Viewer',
+    'Common',
     'rest_framework'
 ]
 
