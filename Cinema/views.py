@@ -118,8 +118,10 @@ class CinemaMovieOrdersAPIView(ListCreateAPIView):
 
 class CinemaMovieOrderAPIView(RetrieveDestroyAPIView):
 
-    queryset = CinemaMovieOrder.objects.all()
+    queryset = CinemaMovieOrder.objects.filter(is_delete=False)
     serializer_class = CinemaMovieOrderSerializer
+    authentication_classes = (CinemaUserAuthentication,)
+    permission_classes = (CinemaMovieOrderPermission, )
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
