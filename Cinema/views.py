@@ -1,11 +1,15 @@
 import uuid
 
+from alipay import AliPay
 from django.core.cache import cache
+from django.http import JsonResponse
 from django.shortcuts import render
+from rest_framework.decorators import api_view
 from rest_framework.exceptions import APIException
-from rest_framework.generics import ListCreateAPIView, RetrieveDestroyAPIView
+from rest_framework.generics import ListCreateAPIView, RetrieveDestroyAPIView, GenericAPIView
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED
+from rest_framework.views import APIView
 
 from Admin.authentication import AdminUserAuthentication
 from Cinema.authentication import CinemaUserAuthentication
@@ -13,7 +17,7 @@ from Cinema.models import CinemaUser, CinemaMovieOrder
 from Cinema.permissions import AdminUserPermission, CinemaMovieOrderPermission
 from Cinema.serializers import CinemaUserSerializer, CinemaMovieOrderSerializer
 from Common.models import Movie
-from DjangoRESTTpp.settings import CINEMA_USER_TIMEOUT
+from DjangoRESTTpp.settings import CINEMA_USER_TIMEOUT, APP_ID, APP_PRIVATE_KEY, ALIPAY_PUBLIC_KEY
 from utils.user_token_util import generate_cinema_token
 
 
@@ -133,3 +137,75 @@ class CinemaMovieOrderAPIView(RetrieveDestroyAPIView):
         return Response(serializer.data)
 
 
+class OrderPayAPIView(GenericAPIView):
+
+    authentication_classes = (CinemaUserAuthentication, )
+    permission_classes = (CinemaMovieOrderPermission, )
+
+    def post(self, request, *args, **kwargs):
+
+        order_id = request.data.get("order_id")
+        pay_channel = request.data.get("pay_channel")
+        order = CinemaMovieOrder.objects.get(pk=order_id)
+
+        o_price = order.c_price
+
+        order_id = "cinema_movie" + order_id
+
+        if pay_channel == "alipay":
+
+            subject = "电脑"
+
+            alipay = AliPay(
+                appid=APP_ID,
+                app_notify_url=None,
+                app_private_key_string=APP_PRIVATE_KEY,
+                # 支付宝的公钥，验证支付宝回传消息使用，不是你自己的公钥,
+                alipay_public_key_string=ALIPAY_PUBLIC_KEY,
+                sign_type="RSA",
+                debug = True  # 默认False
+            )
+
+            order_string = alipay.api_alipay_trade_page_pay(
+                out_trade_no=order_id,
+                total_amount=o_price,
+                subject=subject,
+                return_url="http://localhost:8000/cinema/orderpayed/",
+                notify_url="http://localhost:8000/cinema/orderpayconfirm/"  # 可选, 不填则使用默认notify url
+            )
+
+            pay_info = "https://openapi.alipaydev.com/gateway.do?" + order_string
+
+        elif pay_channel == "wechat":
+            pay_info = "xxx"
+        else:
+            pay_info = "yyy"
+
+        data = {
+            "msg": "ok",
+            "status": 200,
+            "pay_url": pay_info
+        }
+
+        return Response(data)
+
+
+@api_view(["GET", "POST"])
+def order_pay_confirm(request):
+
+    print(request.data)
+
+    data = {
+        "msg": "ok"
+    }
+    return Response(data)
+
+
+@api_view(["GET", "POST"])
+def order_payed(request):
+
+    data = {
+        "msg": "pay success"
+    }
+
+    return Response(data)
