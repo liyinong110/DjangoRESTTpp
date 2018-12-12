@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from Cinema.models import CinemaUser, CinemaMovieOrder
+from Cinema.models import CinemaUser, CinemaMovieOrder, Cinema
 
 
 class CinemaUserSerializer(serializers.ModelSerializer):
@@ -25,3 +25,10 @@ class CinemaMovieOrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = CinemaMovieOrder
         fields = ("c_user_id", "c_movie_id", "c_status", "c_price", "is_delete")
+
+
+class CinemaSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Cinema
+        fields = ("c_name", "c_address", "c_phone")

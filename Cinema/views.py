@@ -13,9 +13,9 @@ from rest_framework.views import APIView
 
 from Admin.authentication import AdminUserAuthentication
 from Cinema.authentication import CinemaUserAuthentication
-from Cinema.models import CinemaUser, CinemaMovieOrder
-from Cinema.permissions import AdminUserPermission, CinemaMovieOrderPermission
-from Cinema.serializers import CinemaUserSerializer, CinemaMovieOrderSerializer
+from Cinema.models import CinemaUser, CinemaMovieOrder, Cinema
+from Cinema.permissions import AdminUserPermission, CinemaMovieOrderPermission, CinemaPermission
+from Cinema.serializers import CinemaUserSerializer, CinemaMovieOrderSerializer, CinemaSerializer
 from Common.models import Movie
 from DjangoRESTTpp.settings import CINEMA_USER_TIMEOUT, APP_ID, APP_PRIVATE_KEY, ALIPAY_PUBLIC_KEY
 from utils.user_token_util import generate_cinema_token
@@ -209,3 +209,21 @@ def order_payed(request):
     }
 
     return Response(data)
+
+
+class CinemasAPIView(ListCreateAPIView):
+
+    queryset = Cinema.objects.all()
+    serializer_class = CinemaSerializer
+    authentication_classes = (CinemaUserAuthentication, )
+    permission_classes = (CinemaPermission, )
+
+    def perform_create(self, serializer):
+        serializer.save(c_user_id = self.request.user.id)
+
+    def get_queryset(self):
+        queryset = super(CinemasAPIView, self).get_queryset()
+
+        if isinstance(self.request.user, CinemaUser):
+            queryset = queryset.filter(c_user = self.request.user)
+        return queryset

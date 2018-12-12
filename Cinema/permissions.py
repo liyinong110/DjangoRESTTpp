@@ -31,3 +31,13 @@ class CinemaMovieOrderPermission(BasePermission):
 
             return isinstance(user, CinemaUser)
         return False
+
+
+class CinemaPermission(BasePermission):
+
+    def has_permission(self, request, view):
+
+        if request.method == "POST":
+            user = request.user
+            return isinstance(user, CinemaUser)
+        return True

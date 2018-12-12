@@ -37,3 +37,11 @@ class CinemaMovieOrder(models.Model):
     c_status = models.IntegerField(default=ORDERED_NOT_PAY)
     c_price = models.FloatField(default=0)
     is_delete = models.BooleanField(default=False)
+
+
+class Cinema(models.Model):
+    c_name = models.CharField(max_length=64)
+    c_address = models.CharField(max_length=128)
+    c_phone = models.CharField(max_length=32)
+    is_active = models.BooleanField(default=False)
+    c_user = models.ForeignKey(CinemaUser)
