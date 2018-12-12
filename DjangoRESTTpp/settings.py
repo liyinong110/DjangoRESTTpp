@@ -130,6 +130,8 @@ STATIC_URL = '/static/'
 
 ADMIN_USER_TIMEOUT = 60 * 60 * 24 * 7
 
+CINEMA_USER_TIMEOUT = 60 * 60 * 24 * 7
+
 ADMIN_USERS = ("Rock", "Admin", "Root")
 
 CACHES = {

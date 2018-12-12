@@ -1,3 +1,24 @@
+from django.contrib.auth.hashers import make_password, check_password
 from django.db import models
 
-# Create your models here.
+CINEMA_REGISTER = 0
+CINEMA_ACTIVE = 1
+CINEMA_CAN_CREATE = 2
+CINEMA_CAN_DELETE = 4
+
+
+class CinemaUser(models.Model):
+
+    c_username = models.CharField(max_length=32, unique=True)
+    c_password = models.CharField(max_length=256)
+    is_delete = models.BooleanField(default=False)
+    c_permission = models.IntegerField(default=CINEMA_REGISTER)
+
+    def check_permission(self, permission):
+        return self.c_permission & permission == permission
+
+    def set_password(self, password):
+        self.c_password = make_password(password)
+
+    def check_user_password(self, password):
+        return check_password(password, self.c_password)

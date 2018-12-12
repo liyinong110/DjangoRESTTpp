@@ -10,6 +10,7 @@ from Admin.models import AdminUser, Permission
 from Admin.permissions import SuperAdminUserPermission
 from Admin.serializers import AdminUserSerializer, PermissionSerializer
 from DjangoRESTTpp.settings import ADMIN_USER_TIMEOUT, ADMIN_USERS
+from utils.user_token_util import generate_admin_token
 
 
 class AdminUsersAPIView(CreateAPIView):
@@ -40,7 +41,7 @@ class AdminUsersAPIView(CreateAPIView):
             if user.is_delete:
                 raise APIException(detail="用户已离职")
 
-            token = uuid.uuid4().hex
+            token = generate_admin_token()
 
             cache.set(token, user.id, timeout=ADMIN_USER_TIMEOUT)
 
