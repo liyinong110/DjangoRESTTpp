@@ -1,6 +1,8 @@
 from django.contrib.auth.hashers import make_password, check_password
 from django.db import models
 
+from Common.models import Movie
+
 CINEMA_REGISTER = 0
 CINEMA_ACTIVE = 1
 CINEMA_CAN_CREATE = 2
@@ -22,3 +24,16 @@ class CinemaUser(models.Model):
 
     def check_user_password(self, password):
         return check_password(password, self.c_password)
+
+
+ORDERED_NOT_PAY = 0
+ORDERED_PAYED = 1
+
+
+class CinemaMovieOrder(models.Model):
+
+    c_user = models.ForeignKey(CinemaUser)
+    c_movie = models.ForeignKey(Movie)
+    c_status = models.IntegerField(default=ORDERED_NOT_PAY)
+    c_price = models.FloatField(default=0)
+    is_delete = models.BooleanField(default=False)

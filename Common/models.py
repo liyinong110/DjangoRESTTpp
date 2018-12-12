@@ -8,3 +8,4 @@ class Movie(models.Model):
     m_director = models.CharField(max_length=64)
     m_open_day = models.DateTimeField(default="1970-1-1 00:00:00")
     m_mode = models.CharField(max_length=32)
+    m_price = models.IntegerField(default=0)
