@@ -10,4 +10,6 @@ urlpatterns = [
     url(r'^orderpayconfirm/', views.order_pay_confirm),
     url(r'^orderpayed/', views.order_payed),
     url(r'^cinemas/', views.CinemasAPIView.as_view()),
+    url(r'^halls/', views.HallsAPIView.as_view()),
+    url(r'^paidangs/', views.PaiDangsAPIView.as_view()),
 ]

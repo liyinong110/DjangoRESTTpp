@@ -1,3 +1,4 @@
+from rest_framework.exceptions import APIException
 from rest_framework.permissions import BasePermission
 
 from Admin.models import AdminUser
@@ -37,7 +38,22 @@ class CinemaPermission(BasePermission):
 
     def has_permission(self, request, view):
 
-        if request.method == "POST":
+        if type(view).__name__ == "HallsAPIView":
+
+            h_cinema_id = request.data.get("h_cinema_id") or request.query_params.get("h_cinema_id")
+
+            cinemas = request.user.cinema_set.filter(pk=h_cinema_id)
+
+            if not cinemas.exists():
+                raise APIException(detail="请选择正确的影院")
+            request.h_cinema_id = h_cinema_id
+
             user = request.user
             return isinstance(user, CinemaUser)
+        else:
+
+            if request.method == "POST":
+                user = request.user
+                return isinstance(user, CinemaUser)
+
         return True

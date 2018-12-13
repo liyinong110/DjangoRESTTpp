@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from Cinema.models import CinemaUser, CinemaMovieOrder, Cinema
+from Cinema.models import CinemaUser, CinemaMovieOrder, Cinema, Hall, PaiDang
 
 
 class CinemaUserSerializer(serializers.ModelSerializer):
@@ -32,3 +32,17 @@ class CinemaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cinema
         fields = ("c_name", "c_address", "c_phone")
+
+
+class HallSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Hall
+        fields = ("h_name", "h_seats", "h_cinema_id")
+
+
+class PaiDangSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = PaiDang
+        fields = ("p_time", "p_price", "p_hall_id", "p_cinema_id", "p_movie_id")

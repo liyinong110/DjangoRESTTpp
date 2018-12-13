@@ -45,3 +45,19 @@ class Cinema(models.Model):
     c_phone = models.CharField(max_length=32)
     is_active = models.BooleanField(default=False)
     c_user = models.ForeignKey(CinemaUser)
+
+
+class Hall(models.Model):
+
+    h_cinema = models.ForeignKey(Cinema)
+    h_name = models.CharField(max_length=32)
+    h_seats = models.CharField(max_length=256)
+
+
+class PaiDang(models.Model):
+
+    p_hall = models.ForeignKey(Hall)
+    p_cinema = models.ForeignKey(Cinema)
+    p_movie = models.ForeignKey(Movie)
+    p_time = models.DateTimeField(default="2018-12-13 00:00:00")
+    p_price = models.FloatField(default=35)

@@ -13,9 +13,9 @@ from rest_framework.views import APIView
 
 from Admin.authentication import AdminUserAuthentication
 from Cinema.authentication import CinemaUserAuthentication
-from Cinema.models import CinemaUser, CinemaMovieOrder, Cinema
+from Cinema.models import CinemaUser, CinemaMovieOrder, Cinema, Hall, PaiDang, ORDERED_PAYED
 from Cinema.permissions import AdminUserPermission, CinemaMovieOrderPermission, CinemaPermission
-from Cinema.serializers import CinemaUserSerializer, CinemaMovieOrderSerializer, CinemaSerializer
+from Cinema.serializers import CinemaUserSerializer, CinemaMovieOrderSerializer, CinemaSerializer, HallSerializer, PaiDangSerializer
 from Common.models import Movie
 from DjangoRESTTpp.settings import CINEMA_USER_TIMEOUT, APP_ID, APP_PRIVATE_KEY, ALIPAY_PUBLIC_KEY
 from utils.user_token_util import generate_cinema_token
@@ -227,3 +227,62 @@ class CinemasAPIView(ListCreateAPIView):
         if isinstance(self.request.user, CinemaUser):
             queryset = queryset.filter(c_user = self.request.user)
         return queryset
+
+
+class HallsAPIView(ListCreateAPIView):
+
+    queryset = Hall.objects.all()
+    serializer_class = HallSerializer
+    authentication_classes = (CinemaUserAuthentication, )
+    permission_classes = (CinemaPermission, )
+
+    def get_queryset(self):
+        queryset = super(HallsAPIView, self).get_queryset()
+        queryset = queryset.filter(h_cinema_id=self.request.h_cinema_id)
+        return queryset
+
+    def perform_create(self, serializer):
+        h_cinema_id = self.request.h_cinema_id
+        serializer.save(h_cinema_id=h_cinema_id)
+
+
+class PaiDangsAPIView(ListCreateAPIView):
+
+    queryset = PaiDang.objects.all()
+    serializer_class = PaiDangSerializer
+    authentication_classes = (CinemaUserAuthentication, )
+    permission_classes = (CinemaPermission, )
+
+    def post(self, request, *args, **kwargs):
+        p_hall_id = request.data.get("p_hall_id")
+        p_cinema_id = request.data.get("p_cinema_id")
+
+        cinemas = request.user.cinema_set.filter(pk=p_cinema_id)
+
+        if not cinemas.exists():
+            raise APIException(detail="请选择正确的影院")
+
+        cinema = cinemas.first()
+
+        halls = cinema.hall_set.filter(pk=p_hall_id)
+
+        if not halls.exists():
+            raise APIException(detail="请选择正确的大厅")
+
+        # 电影是否购买
+        # 去订单表中查询   查询当前用户，所购电影
+        p_movie_id = request.data.get("p_movie_id")
+
+        orders = CinemaMovieOrder.objects.filter(c_movie_id=p_movie_id).filter(c_user_id=request.user.id).filter(c_status=ORDERED_PAYED)
+
+        if not orders.exists():
+            raise APIException(detail="电影未购买")
+
+        request.p_movie_id = p_movie_id
+        request.p_hall_id = p_hall_id
+        request.p_cinema_id = p_cinema_id
+
+        return self.create(request, *args, **kwargs)
+
+    def perform_create(self, serializer):
+        serializer.save(p_hall_id=self.request.p_hall_id, p_cinema_id=self.request.p_cinema_id, p_movie_id=self.request.p_movie_id)
