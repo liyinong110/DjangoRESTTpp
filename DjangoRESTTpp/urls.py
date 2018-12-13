@@ -20,4 +20,5 @@ urlpatterns = [
     url(r'^admin/', include('Admin.urls')),
     url(r'^common/', include('Common.urls')),
     url(r'^cinema/', include('Cinema.urls')),
+    url(r'^viewer/', include('Viewer.urls')),
 ]

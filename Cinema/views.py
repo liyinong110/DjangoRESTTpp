@@ -253,6 +253,33 @@ class PaiDangsAPIView(ListCreateAPIView):
     authentication_classes = (CinemaUserAuthentication, )
     permission_classes = (CinemaPermission, )
 
+    # 时间  电影院   电影
+    def get(self, request, *args, **kwargs):
+        cinema_id = request.query_params.get("cinema_id")
+        movie_id = request.query_params.get("movie_id")
+        p_time = request.query_params.get("p_time")
+
+        # 验证参数合法性
+        request.cinema_id = cinema_id
+        request.movie_id = movie_id
+        request.p_time = p_time
+        return self.list(request, *args, **kwargs)
+
+    def get_queryset(self):
+
+        queryset = super(PaiDangsAPIView,self).get_queryset()
+
+        p_time = self.request.p_time
+
+        year_month_day = p_time
+
+        year, month, day= year_month_day.split("-")
+
+        queryset = queryset.filter(p_cinema_id=self.request.cinema_id).filter(p_movie_id=self.request.movie_id)\
+            .filter(p_time__year=year).filter(p_time__month=month).filter(p_time__day=day)
+
+        return queryset
+
     def post(self, request, *args, **kwargs):
         p_hall_id = request.data.get("p_hall_id")
         p_cinema_id = request.data.get("p_cinema_id")
