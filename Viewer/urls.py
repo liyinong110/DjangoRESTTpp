@@ -5,4 +5,5 @@ from Viewer import views
 urlpatterns = [
     url(r'^users/', views.ViewerUSerAPIView.as_view()),
     url(r'^orders/', views.ViewerOrdersAPIView.as_view()),
+    url(r'^seats/', views.SeatsAPIView.as_view()),
 ]

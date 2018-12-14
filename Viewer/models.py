@@ -41,7 +41,7 @@ ORDERED_CANCLE = 2
 class ViewerOrder(models.Model):
     v_user = models.ForeignKey(ViewerUser)
     v_paidang = models.ForeignKey(PaiDang)
-    v_expire = models.DateTimeField(default=datetime.datetime.now())
+    v_expire = models.DateTimeField(default=datetime.datetime.now)
     v_price = models.FloatField(default=1)
     v_status = models.IntegerField(default=ORDERED_NOT_PAY)
     v_seats = models.CharField(max_length=256)

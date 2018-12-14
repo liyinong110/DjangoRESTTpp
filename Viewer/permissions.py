@@ -7,6 +7,9 @@ class ViewerUserPermission(BasePermission):
 
     def has_permission(self, request, view):
 
+        if type(view).__name__ == "SeatsAPIView":
+            return isinstance(request.user, ViewerUser)
+
         if request.method == "POST":
             return isinstance(request.user, ViewerUser)
 
