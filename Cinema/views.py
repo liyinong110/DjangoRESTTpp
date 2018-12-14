@@ -2,6 +2,8 @@ import uuid
 
 from alipay import AliPay
 from django.core.cache import cache
+from django.db.models import Q
+import datetime
 from django.http import JsonResponse
 from django.shortcuts import render
 from rest_framework.decorators import api_view
@@ -305,11 +307,47 @@ class PaiDangsAPIView(ListCreateAPIView):
         if not orders.exists():
             raise APIException(detail="电影未购买")
 
+        movie = Movie.objects.get(pk=p_movie_id)
+
+        # p_time 开始
+        p_time = request.data.get("p_time")
+
+        # p_time_end  + 电影时长 + 打扫时长
+
+        times = p_time.split(" ")
+
+        year, month, day = times[0].split("-")
+        hour, minute, second = times[1].split(":")
+
+        clean_time = 15
+
+        # p_time_end = p_time + movie.m_duration + 15
+        p_time_end = datetime.datetime(year=int(year), month=int(month), day=int(day), hour=int(hour), minute=int(minute), second=int(second)) + datetime.timedelta(minutes=movie.m_duration + clean_time)
+
+        # 写注释
+        paidangs = PaiDang.objects.filter(Q(Q(p_time__lte=p_time) & Q(p_time_end__gte=p_time_end)) | Q(Q(p_time_end__gte=p_time) & Q(p_time_end__lte=p_time_end)) | Q(Q(p_time__gte=p_time) & Q(p_time__lte=p_time_end)))
+
+        if paidangs.exists():
+            raise APIException(detail="时间冲突")
+        # if paidangs.exists():
+        #     raise APIException(detail="时间被包含")
+
+        # paidangs = PaiDang.objects.filter(Q(p_time_end__gte=p_time) & Q(p_time_end__lte=p_time_end))
+        #
+        # if paidangs.exists():
+        #     raise APIException(detail="包含结束")
+        #
+        # paidangs = PaiDang.objects.filter(Q(p_time__gte=p_time) & Q(p_time__lte=p_time_end))
+        #
+        # if paidangs.exists():
+        #     raise APIException(detail="包含开始")
+
         request.p_movie_id = p_movie_id
         request.p_hall_id = p_hall_id
         request.p_cinema_id = p_cinema_id
+        request.p_time_end = "{}-{}-{} {}:{}:{}".format(p_time_end.year,p_time_end.month, p_time_end.day, p_time_end.hour, p_time_end.minute, p_time_end.second)
 
         return self.create(request, *args, **kwargs)
 
     def perform_create(self, serializer):
-        serializer.save(p_hall_id=self.request.p_hall_id, p_cinema_id=self.request.p_cinema_id, p_movie_id=self.request.p_movie_id)
+        serializer.save(p_time_end=self.request.p_time_end,p_hall_id=self.request.p_hall_id, p_cinema_id=self.request.p_cinema_id, p_movie_id=self.request.p_movie_id)

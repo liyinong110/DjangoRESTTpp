@@ -45,4 +45,4 @@ class PaiDangSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PaiDang
-        fields = ("p_time", "p_price", "p_hall_id", "p_cinema_id", "p_movie_id")
+        fields = ("p_time", "p_time_end", "p_price", "p_hall_id", "p_cinema_id", "p_movie_id")

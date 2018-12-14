@@ -60,4 +60,5 @@ class PaiDang(models.Model):
     p_cinema = models.ForeignKey(Cinema)
     p_movie = models.ForeignKey(Movie)
     p_time = models.DateTimeField(default="2018-12-13 00:00:00")
+    p_time_end = models.DateTimeField(default="2018-12-13 02:00:00")
     p_price = models.FloatField(default=35)
